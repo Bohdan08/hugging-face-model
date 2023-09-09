@@ -8,10 +8,12 @@ export default function Home() {
   const textValues = useLiveQuery(() => db.textValues.toArray());
 
   // Keep track of the classification result and the model loading status.
+  const [inputValue, setInputValue] = useState("");
   const [result, setResult] = useState(null);
   const [ready, setReady] = useState(null);
 
   const [dbValuesView, setDbValuesView] = useState(false);
+  const [similarValuesView, setSimilarValuesView] = useState(false);
 
   // Create a reference to the worker object.
   const worker = useRef(null);
@@ -70,7 +72,12 @@ export default function Home() {
     }
   }, []);
 
-  console.log(textValues, "textValues");
+  const similarInputValues = textValues?.filter(
+    ({ text }) =>
+      // make sure it's not the same value
+      inputValue.toLowerCase() !== text?.toLowerCase() &&
+      text?.toLowerCase().includes(inputValue.toLowerCase())
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-12">
@@ -84,6 +91,7 @@ export default function Home() {
         placeholder="Enter text here"
         onInput={(e) => {
           classify(e.target.value);
+          setInputValue(e.target.value);
         }}
       />
 
@@ -97,7 +105,7 @@ export default function Home() {
         className="bg-white rounded w-40 h-10 mt-20"
         onClick={() => setDbValuesView(!dbValuesView)}
       >
-        {!dbValuesView ? 'Show' :'Hide'} All Values
+        {!dbValuesView ? "Show" : "Hide"} All Values
       </button>
 
       {dbValuesView ? (
@@ -122,6 +130,42 @@ export default function Home() {
           </ul>
         ) : (
           <div className="mt-5">No Values </div>
+        )
+      ) : null}
+
+      {/*  */}
+
+      <button
+        className="bg-white rounded w-80 h-10 mt-10"
+        onClick={() => setSimilarValuesView(!similarValuesView)}
+      >
+        {!similarValuesView ? "Show" : "Hide"} Similar Formerly Searched Values
+      </button>
+
+      {similarValuesView && !inputValue ? (
+        <div className="mt-5">No data </div>
+      ) : similarValuesView ? (
+        similarInputValues.length ? (
+          <ul className="mt-5 max-h-96 overflow-scroll bg-white px-2 rounded shadow-xl">
+            {similarInputValues.map(
+              ({ text, classification: { label, score } }, index) => (
+                <li key={index} className="mb-2">
+                  <span className="font-bold"> {text}: </span>{" "}
+                  <span
+                    className={`${
+                      label.startsWith("P") ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {" "}
+                    {label}{" "}
+                  </span>{" "}
+                  {score}{" "}
+                </li>
+              )
+            )}
+          </ul>
+        ) : (
+          <div className="mt-5">No Similar Values </div>
         )
       ) : null}
     </main>
