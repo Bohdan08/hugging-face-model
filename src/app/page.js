@@ -52,8 +52,9 @@ export default function Home() {
           setReady(true);
           break;
         case "complete":
-          setResult(e.data.output[0]);
-          addResultToDB(e.data.text, e.data.output[0]);
+          // console.log(e.data.output, 'OUTPUTOUTPUT', e.data.output)
+          setResult(e.data.output);
+          // addResultToDB(e.data.text, e.data.output);
           break;
       }
     };
@@ -72,17 +73,18 @@ export default function Home() {
     }
   }, []);
 
-  const similarInputValues = textValues?.filter(
-    ({ text }) =>
-      // make sure it's not the same value
-      inputValue.toLowerCase() !== text?.toLowerCase() &&
-      text?.toLowerCase().includes(inputValue.toLowerCase())
-  );
+  // const similarInputValues = textValues?.filter(
+  //   ({ text }) =>
+  //     // make sure it's not the same value
+  //     inputValue.toLowerCase() !== text?.toLowerCase() &&
+  //     text?.toLowerCase().includes(inputValue.toLowerCase())
+  // );
 
+  // console.log(textValues, "textValuestextValues");
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-12">
       <h1 className="text-5xl font-bold mb-5 text-center">
-        Text Classification
+        Toxic comment classification
       </h1>
 
       <input
@@ -96,17 +98,17 @@ export default function Home() {
       />
 
       {ready !== null && (
-        <pre className="bg-gray-100 p-2 rounded">
+        <pre className="bg-gray-100 p-2 rounded h-auto w-[500px] overflow-scroll shadow">
           {!ready || !result ? "Loading..." : JSON.stringify(result, null, 2)}
         </pre>
       )}
 
-      <button
+      {/* <button
         className="bg-white rounded w-40 h-10 mt-20"
         onClick={() => setDbValuesView(!dbValuesView)}
       >
         {!dbValuesView ? "Show" : "Hide"} All Values
-      </button>
+      </button> */}
 
       {dbValuesView ? (
         textValues.length ? (
@@ -135,12 +137,12 @@ export default function Home() {
 
       {/*  */}
 
-      <button
+      {/* <button
         className="bg-white rounded w-80 h-10 mt-10"
         onClick={() => setSimilarValuesView(!similarValuesView)}
       >
         {!similarValuesView ? "Show" : "Hide"} Similar Formerly Searched Values
-      </button>
+      </button> */}
 
       {similarValuesView && !inputValue ? (
         <div className="mt-5">No data </div>

@@ -5,8 +5,12 @@ env.allowLocalModels = false;
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
 class PipelineSingleton {
-  static task = "text-classification";
-  static model = "Xenova/distilbert-base-uncased-finetuned-sst-2-english";
+  //   static task = "text-classification";
+  //   static model = "Xenova/distilbert-base-uncased-finetuned-sst-2-english";
+  // static task = "feature-extraction";
+  // static model = "Xenova/all-MiniLM-L6-v2";
+   static task = "text-classification";
+  static model = "Xenova/toxic-bert";
   static instance = null;
 
   static async getInstance(progress_callback = null) {
@@ -28,12 +32,20 @@ self.addEventListener("message", async (event) => {
   });
 
   // Actually perform the classification
-  let output = await classifier(event.data.text);
+  let output = await classifier(event.data.text, { topk: null });
 
-  // Send the output back to the main thread
+  let formattedOutput = {};
+
+  Object.entries(output).forEach(([key, value]) => {
+    formattedOutput[key] = value;
+  });
+
+  // console.log(output,'non formatted output')
+  // console.log(formattedOutput, "formattedOutput");
+
   self.postMessage({
     status: "complete",
     text: event.data.text,
-    output: output,
+    output: formattedOutput,
   });
 });
