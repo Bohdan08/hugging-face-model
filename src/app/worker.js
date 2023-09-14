@@ -9,7 +9,7 @@ class PipelineSingleton {
   //   static model = "Xenova/distilbert-base-uncased-finetuned-sst-2-english";
   // static task = "feature-extraction";
   // static model = "Xenova/all-MiniLM-L6-v2";
-   static task = "text-classification";
+  static task = "text-classification";
   static model = "Xenova/toxic-bert";
   static instance = null;
 
@@ -36,16 +36,17 @@ self.addEventListener("message", async (event) => {
 
   let formattedOutput = {};
 
-  Object.entries(output).forEach(([key, value]) => {
-    formattedOutput[key] = value;
-  });
+  // Object.entries(output).forEach(([key, value]) => {
+  //   formattedOutput[key] = value;
+  // });
 
   // console.log(output,'non formatted output')
   // console.log(formattedOutput, "formattedOutput");
 
+  console.log(output, "output");
   self.postMessage({
     status: "complete",
     text: event.data.text,
-    output: formattedOutput,
+    output: output,
   });
 });

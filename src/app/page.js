@@ -1,37 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { db } from "./db";
-import { useLiveQuery } from "dexie-react-hooks";
 
 export default function Home() {
-  const textValues = useLiveQuery(() => db.textValues.toArray());
-
   // Keep track of the classification result and the model loading status.
-  const [inputValue, setInputValue] = useState("");
   const [result, setResult] = useState(null);
   const [ready, setReady] = useState(null);
 
-  const [dbValuesView, setDbValuesView] = useState(false);
-  const [similarValuesView, setSimilarValuesView] = useState(false);
-
   // Create a reference to the worker object.
   const worker = useRef(null);
-
-  // add text to db
-  async function addResultToDB(text, output) {
-    try {
-      // Add the new friend!
-      const id = await db.textValues.add({
-        text,
-        classification: output,
-      });
-
-      console.log(`${text} successfully added with id: ${id}`);
-    } catch (error) {
-      throw Error(error.message);
-    }
-  }
 
   // We use the `useEffect` hook to set up the worker as soon as the `App` component is mounted.
   useEffect(() => {
@@ -52,9 +29,7 @@ export default function Home() {
           setReady(true);
           break;
         case "complete":
-          // console.log(e.data.output, 'OUTPUTOUTPUT', e.data.output)
           setResult(e.data.output);
-          // addResultToDB(e.data.text, e.data.output);
           break;
       }
     };
@@ -73,14 +48,6 @@ export default function Home() {
     }
   }, []);
 
-  // const similarInputValues = textValues?.filter(
-  //   ({ text }) =>
-  //     // make sure it's not the same value
-  //     inputValue.toLowerCase() !== text?.toLowerCase() &&
-  //     text?.toLowerCase().includes(inputValue.toLowerCase())
-  // );
-
-  // console.log(textValues, "textValuestextValues");
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-12">
       <h1 className="text-5xl font-bold mb-5 text-center">
@@ -93,7 +60,6 @@ export default function Home() {
         placeholder="Enter text here"
         onInput={(e) => {
           classify(e.target.value);
-          setInputValue(e.target.value);
         }}
       />
 
@@ -102,74 +68,6 @@ export default function Home() {
           {!ready || !result ? "Loading..." : JSON.stringify(result, null, 2)}
         </pre>
       )}
-
-      {/* <button
-        className="bg-white rounded w-40 h-10 mt-20"
-        onClick={() => setDbValuesView(!dbValuesView)}
-      >
-        {!dbValuesView ? "Show" : "Hide"} All Values
-      </button> */}
-
-      {dbValuesView ? (
-        textValues.length ? (
-          <ul className="mt-5 max-h-96 overflow-scroll bg-white px-2 rounded shadow-xl">
-            {textValues.map(
-              ({ text, classification: { label, score } }, index) => (
-                <li key={index} className="mb-2">
-                  <span className="font-bold"> {text}: </span>{" "}
-                  <span
-                    className={`${
-                      label.startsWith("P") ? "text-green-500" : "text-red-500"
-                    }`}
-                  >
-                    {" "}
-                    {label}{" "}
-                  </span>{" "}
-                  {score}{" "}
-                </li>
-              )
-            )}
-          </ul>
-        ) : (
-          <div className="mt-5">No Values </div>
-        )
-      ) : null}
-
-      {/*  */}
-
-      {/* <button
-        className="bg-white rounded w-80 h-10 mt-10"
-        onClick={() => setSimilarValuesView(!similarValuesView)}
-      >
-        {!similarValuesView ? "Show" : "Hide"} Similar Formerly Searched Values
-      </button> */}
-
-      {similarValuesView && !inputValue ? (
-        <div className="mt-5">No data </div>
-      ) : similarValuesView ? (
-        similarInputValues.length ? (
-          <ul className="mt-5 max-h-96 overflow-scroll bg-white px-2 rounded shadow-xl">
-            {similarInputValues.map(
-              ({ text, classification: { label, score } }, index) => (
-                <li key={index} className="mb-2">
-                  <span className="font-bold"> {text}: </span>{" "}
-                  <span
-                    className={`${
-                      label.startsWith("P") ? "text-green-500" : "text-red-500"
-                    }`}
-                  >
-                    {" "}
-                    {label}{" "}
-                  </span>{" "}
-                  {score}{" "}
-                </li>
-              )
-            )}
-          </ul>
-        ) : (
-          <div className="mt-5">No Similar Values </div>
-        )
-      ) : null}
     </main>
   );
 }
