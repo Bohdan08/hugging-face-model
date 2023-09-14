@@ -32,9 +32,9 @@ self.addEventListener("message", async (event) => {
   });
 
   // Actually perform the classification
-  let output = await classifier(event.data.text, { topk: null });
+  let output = await classifier(event.data.text);
 
-  let formattedOutput = {};
+  // let formattedOutput = {};
 
   // Object.entries(output).forEach(([key, value]) => {
   //   formattedOutput[key] = value;
